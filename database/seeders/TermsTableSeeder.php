@@ -25,7 +25,7 @@ class TermsTableSeeder extends Seeder
             "end"=>Carbon::now()->addMonths(7)->endOfMonth()->toDateTimeString()
         ]);
         Term::create([
-            "name" => "Second",
+            "name" => "Third",
             "start"=>Carbon::now()->addMonths(8)->toDateTimeString(),
             "end"=>Carbon::now()->addMonths(12)->endOfMonth()->toDateTimeString()
         ]);

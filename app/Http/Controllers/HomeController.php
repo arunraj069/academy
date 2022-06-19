@@ -7,7 +7,7 @@ use App\Models\{
     Subject,
     Mark
 };
-
+use DB;
 class HomeController extends Controller
 {
     /**
@@ -31,29 +31,23 @@ class HomeController extends Controller
     }
     public function getMark (Request $request){
         $subjects  = Subject::orderBy('id')->get();
-        $termMarks = Mark::with(['getUser:id,name as uname,email','getTerm:id,name as term','getSubject:id,name as subject'])
+        $gettermMarks = Mark::query()
+                    ->select('user_id','term_id',DB::raw('group_concat(marks.subject_id) as subject_id'),DB::raw('group_concat(marks.marks) as marks'),'marks.created_at as created_at')
+                    ->with(['getUser:id,name,email','getTerm:id,name'])
                     ->where('user_id', auth()->user()->id)
                     ->orderBy('subject_id')
-                    ->get()
-                    ->groupBy('term_id','user_id')
-                    ->map(function(\Illuminate\Support\Collection $term) {
-                        $marks   = $term->pluck('marks','subject_id');
-                        $getData = $term->map(function($data){
-                            return (object)[
-                                    'user' =>$data->getUser->uname,
-                                    'email' => $data->getUser->email,
-                                    'term' => $data->getTerm->term,
-                                ];
-                        });
+                    ->groupBy('term_id','user_id','created_at')
+                    ->get();
+       $termMarks = $gettermMarks->map(function($term) {
                         return [
-                            'user' => $getData->first()->user,
-                            'email' => $getData->first()->email,
-                            'term' => $getData->first()->term,
-                            'marks' => $marks,
-                            'sum' => $term->sum('marks'),
-                            'term_id' => $term->first()->term_id,
-                            'user_id' =>$term->first()->user_id,
-                            'created_at' => $term->first()->created_at
+                            'user' => $term->getUser->name,
+                            'email' => $term->getUser->email,
+                            'term' => $term->getTerm->name,
+                            'marks' => array_combine(explode(',',$term->subject_id),explode(',',$term->marks)),
+                            'sum' =>array_sum(explode(',',$term->marks)),
+                            'term_id' => $term->term_id,
+                            'user_id' =>$term->user_id,
+                            'created_at' => $term->created_at
                         ];
                     })->values();
         return view('get_student')->with(compact('termMarks','subjects'));

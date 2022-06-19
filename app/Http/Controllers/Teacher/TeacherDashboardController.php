@@ -27,43 +27,23 @@ class TeacherDashboardController extends Controller
     	return view('teacher.home')->with(compact('students'));
     }
     public function getStudentMark (Request $request){
-    	// $marks = Mark::select(DB::raw('SUM(marks) as marks'))
-    	// 			->groupBy('term_id','user_id')->get()->toArray();
-    	// $c = Term::with(['results'])->get()->map(function(Term $term){
-		   //      return [
-		   //      	'student_name' => $user->name,
-		   //          'term_name' => $term->name,
-		   //          'marks' => $term->results->pluck('marks', 'subject_id'),
-		   //      ];
-    	// 	})->values();
     	$subjects  = Subject::orderBy('id')->get();
-    	$termMarks = Mark::with(['getUser:id,name as uname,email','getTerm:id,name as term','getSubject:id,name as subject'])
-			    	// ->select('getTerm.name as term','users.name as uname','users.email as email','marks.*','subjects.name as subject')
-			        //->join('terms', 'terms.id', 'marks.term_id')
-			        //->join('users', 'users.id', 'marks.user_id')
-			        //->join('subjects', 'subjects.id', 'marks.subject_id')
-			        //->where('exam_results.student_id', $student_id)
-			        ->orderBy('subject_id')
-			        ->get()
-			        ->groupBy('term_id','user_id')
-			        ->map(function(\Illuminate\Support\Collection $term) {
-                        $marks   = $term->pluck('marks','subject_id');
-                        $getData = $term->map(function($data){
-                            return (object)[
-                                    'user' =>$data->getUser->uname,
-                                    'email' => $data->getUser->email,
-                                    'term' => $data->getTerm->term,
-                                ];
-                        });
+        $gettermMarks = Mark::query()
+                    ->select('user_id','term_id',DB::raw('group_concat(marks.subject_id) as subject_id'),DB::raw('group_concat(marks.marks) as marks'),'marks.created_at as created_at')
+                    ->with(['getUser:id,name,email','getTerm:id,name'])
+                    ->orderBy('subject_id')
+                    ->groupBy('term_id','user_id','created_at')
+                    ->get();
+	   $termMarks = $gettermMarks->map(function($term) {
 			            return [
-			            	'user' => $getData->first()->user,
-			            	'email' => $getData->first()->email,
-			                'term' => $getData->first()->term,
-			                'marks' => $marks,
-			                'sum' => $term->sum('marks'),
-			                'term_id' => $term->first()->term_id,
-                            'user_id' =>$term->first()->user_id,
-			                'created_at' => $term->first()->created_at
+			            	'user' => $term->getUser->name,
+			            	'email' => $term->getUser->email,
+			                'term' => $term->getTerm->name,
+			                'marks' => array_combine(explode(',',$term->subject_id),explode(',',$term->marks)),
+			                'sum' =>array_sum(explode(',',$term->marks)),
+			                'term_id' => $term->term_id,
+                            'user_id' =>$term->user_id,
+			                'created_at' => $term->created_at
 			            ];
 			        })->values();
     	return view('teacher.get_student')->with(compact('termMarks','subjects'));
