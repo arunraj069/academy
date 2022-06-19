@@ -8,4 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class Term extends Model
 {
     use HasFactory;
+
+    public function marks(){
+        return $this->hasMany(Mark::class, 'term_id', 'id');
+    }
 }

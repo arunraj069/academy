@@ -37,21 +37,29 @@ class TeacherDashboardController extends Controller
 		   //      ];
     	// 	})->values();
     	$subjects  = Subject::orderBy('id')->get();
-    	$termMarks = Mark::query()
-			    	->select('terms.name as term','users.name as uname','users.email as email','marks.*','subjects.name as subject')
-			        ->join('terms', 'terms.id', 'marks.term_id')
-			        ->join('users', 'users.id', 'marks.user_id')
-			        ->join('subjects', 'subjects.id', 'marks.subject_id')
+    	$termMarks = Mark::with(['getUser:id,name as uname,email','getTerm:id,name as term','getSubject:id,name as subject'])
+			    	// ->select('getTerm.name as term','users.name as uname','users.email as email','marks.*','subjects.name as subject')
+			        //->join('terms', 'terms.id', 'marks.term_id')
+			        //->join('users', 'users.id', 'marks.user_id')
+			        //->join('subjects', 'subjects.id', 'marks.subject_id')
 			        //->where('exam_results.student_id', $student_id)
 			        ->orderBy('subject_id')
 			        ->get()
 			        ->groupBy('term_id','user_id')
 			        ->map(function(\Illuminate\Support\Collection $term) {
+                        $marks   = $term->pluck('marks','subject_id');
+                        $getData = $term->map(function($data){
+                            return (object)[
+                                    'user' =>$data->getUser->uname,
+                                    'email' => $data->getUser->email,
+                                    'term' => $data->getTerm->term,
+                                ];
+                        });
 			            return [
-			            	'user' => $term->first()->uname,
-			            	'email' => $term->first()->email,
-			                'term' => $term->first()->term,
-			                'marks' => $term->pluck('marks','subject'),
+			            	'user' => $getData->first()->user,
+			            	'email' => $getData->first()->email,
+			                'term' => $getData->first()->term,
+			                'marks' => $marks,
 			                'sum' => $term->sum('marks'),
 			                'term_id' => $term->first()->term_id,
                             'user_id' =>$term->first()->user_id,

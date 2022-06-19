@@ -34,7 +34,7 @@
                                 <td>{{ $loop->iteration }}</td>         
                                 <td>{{ $details['user'] }}</td> 
                                 @foreach($subjects as $sub)
-                                    <td>{{ $details['marks'][$sub->name] }}</td>
+                                    <td>{{ $details['marks'][$sub->id] }}</td>
                                 @endforeach  
                                 <td>{{ $details['term'] }}</td> 
                                 <td>{{ $details['sum'] }}</td>

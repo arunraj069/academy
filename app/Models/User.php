@@ -52,4 +52,7 @@ class User extends Authenticatable
     public function orientation(){
         return $this->hasOne(Gender::class, 'id', 'gender');
     }
+    public function marks(){
+        return $this->hasMany(Mark::class, 'user_id', 'id');
+    }
 }
