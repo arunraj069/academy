@@ -6,6 +6,7 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
+
 ## Student Management Software
 * Clone the repository
 * Change .env.example file to .env
@@ -19,8 +20,8 @@ The Project consists of three login Admin, Tutor, Student
 
 1. Admin
 Credentials 
-admin@gmail.com
-admin@123
+    admin@gmail.com
+    admin@123
 
 Admin can create the student and assign to the tutor.
 
@@ -28,14 +29,14 @@ Please copy the email ID and Password generated for students.
 
 2. Tutor
 Credentials 
-mark@gmail.com
-mark@123
+    mark@gmail.com
+    mark@123
 
-john@gmail.com
-john@123
+    john@gmail.com
+    john@123
 
-juliet@gmail.com
-juliet@123
+    juliet@gmail.com
+    juliet@123
 
 Tutor can update marks to the assigned students.
 
