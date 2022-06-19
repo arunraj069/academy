@@ -12,6 +12,7 @@
 * Change .env.example file to .env
 * Update the MySQL connections
 * Composer Update
+* Run php artisan key:generate
 * Run php artisan migrate
 * Run php artisan db:seed
 * Run the project php artisan serve
